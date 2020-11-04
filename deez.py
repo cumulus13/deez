@@ -86,6 +86,8 @@ class Deez(object):
         debug(ARL = ARL)
         deezer = Deezer(arl = ARL)
     config = configset()
+    if not ARL:
+        ALR = config.get_config('AUTH', 'arl', "4659ecf4e9e46931714cbf470afd5242fdf97505c7f0e89aecc9442caa056064c9a538693acb37292467d76a2039e4e6b38e0d118fe018625d5252f38db315c46bf17d45cd1442acaf15006d9ef9d42aaf385a71c937b6fafa342bb2bb0dfa6e")
 
     def __init__(self, arl = None):
         super(Deez, self)
@@ -277,8 +279,8 @@ class Deez(object):
                         q2 = raw_input(make_colors("Select Number to download [a/all = download all]:", 'lw', 'm') + " ")
                         if q2:
                             q2 = str(q2).strip()
+                        tracks = cls.deezer.get_album_tracks(id)
                         if q2 and q2 == 'all' or q2 == 'a':
-                            tracks = cls.deezer.get_album_tracks(id)
                             for track in tracks:
                                 track_id = track.get('SNG_ID')
                                 track_detail = cls.deezer.get_track(track_id)
@@ -295,8 +297,27 @@ class Deez(object):
                                     track_detail["download"](download_path, quality=track_formats.MP3_320)
                                 elif fformat == 'flac':
                                     track_detail["download"](download_path, quality=track_formats.FLAC)
+                        else:
+                            track_id = tracks[int(q2) - 1].get('SNG_ID')
+                            track_detail = cls.deezer.get_track(track_id)
+                            track_info = track_detail["info"]
+                            tags_separated_by_comma = track_detail["tags"]
+                            
+                            #url_download = cls.deezer.get_track_download_url(track, quality=track_formats.MP3_320)
+                            #debug(url_download = url_download[0])
+                            name = cls.format_number(track.get('TRACK_NUMBER'), len(tracks)) + ". " + track.get('SNG_TITLE')# + ".mp3"
+                            track_detail.get('info').get('DATA').update({'SNG_TITLE': name})
+                            #name = os.path.join(download_path, name)
+                            #wget.download(url_download[0], out=name)
+                            if fformat == 'mp3':
+                                track_detail["download"](download_path, quality=track_formats.MP3_320)
+                            elif fformat == 'flac':
+                                track_detail["download"](download_path, quality=track_formats.FLAC)                            
                         
-                                
+                    else:
+                        return cls.download_interactive(q1, download_path, ftype, fformat)
+            else:
+                return cls.download_interactive(q, download_path, ftype, fformat)
         return cls.download_interactive(query, download_path, ftype, fformat)
 
     @classmethod

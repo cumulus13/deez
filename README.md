@@ -1,10 +1,12 @@
 # Deez
+
 Download MP3 or FLAC from Deezer.com by Artist Name (for now just artist name)
 
 ## author
+
 LICFACE <licface@yahoo.com)
 
-## usage
+## usage (cli)
 
 ```python:
 
@@ -19,3 +21,14 @@ LICFACE <licface@yahoo.com)
 							Save download to
 	  -t TYPE, --type TYPE  mp3 or flac, default = mp3
 
+
+## Requirements
+
+Python > 3.0
+py-deezer
+configset
+clipboard
+bitmath
+make_colors
+pydebugger
+pywget

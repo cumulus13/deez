@@ -255,8 +255,8 @@ class Deez(object):
                             poster = os.path.join(download_path, poster)
                             artist_pic = "Artist" + "." + artist_picture_data.get('ext')
                             artist_pic = os.path.join(download_path, artist_pic)
-                            print("Cover      =", cover)
-                            print("Artist Pic =", artist_pic)
+                            #print("Cover      =", cover)
+                            #print("Artist Pic =", artist_pic)
                             
                             with open(cover, 'wb') as cover_file:
                                 cover_file.write(cover_data.get('image'))
@@ -331,6 +331,9 @@ class Deez(object):
         else:
             args = parser.parse_args()
             cls.download_interactive(args.query, args.download_path, fformat = args.type)
+            
+def usage():
+    Deez.usage()
         
 if __name__ == '__main__':    
     #Deez.download_interactive(sys.argv[1])

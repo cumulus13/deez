@@ -24,21 +24,14 @@ Download MP3 or FLAC from Deezer.com by Artist Name (for now just artist name)
 
 ## Requirements
 
-Python > 3.0
-
-py-deezer
-
-configset
-
-clipboard
-
-bitmath
-
-make_colors
-
-pydebugger
-
-pywget
+* Python > 3.0
+* py-deezer
+* configset
+* clipboard
+* bitmath
+* make_colors
+* pydebugger
+* pywget
 
 ## License
 

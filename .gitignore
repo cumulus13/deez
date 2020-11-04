@@ -1,0 +1,12 @@
+*.wpr
+*.lrc
+*.wpu
+*.pyc
+*/
+traceback.log
+build/
+dist/
+*egg-info/
+*.mp3
+*.jpg
+*.png

@@ -4,7 +4,7 @@ Download MP3 or FLAC from Deezer.com by Artist Name (for now just artist name)
 
 ## author
 
-[LICFACE] (licface@yahoo.com)
+[cumulus13](cumulus13@gmail.com)
 
 ## usage (cli)
 
@@ -25,10 +25,21 @@ Download MP3 or FLAC from Deezer.com by Artist Name (for now just artist name)
 ## Requirements
 
 Python > 3.0
+
 py-deezer
+
 configset
+
 clipboard
+
 bitmath
+
 make_colors
+
 pydebugger
+
 pywget
+
+## License
+
+The program is released under GPL 3.

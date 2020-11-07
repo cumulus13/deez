@@ -216,14 +216,26 @@ class Deez(object):
                 if int(q) <= len(i):
                     n = 1
                     id = result[int(q) - 1].get('id')
+                    artist_name = result[int(q) - 1].get('name')
                     debug(id = id)
                     #id = 81238
-                    disco = cls.deezer.get_artist_discography(id)
+                    while 1:
+                        try:
+                            disco = cls.deezer.get_artist_discography(id)
+                            break
+                        except:
+                            pass
                     debug(disco = disco)
                     disco = sorted(disco, key = lambda k: k['DIGITAL_RELEASE_DATE'], reverse = True)
-                    print(make_colors("DISCOGRAPHY:", 'b', 'ly') + " ")
+                    print(make_colors("DISCOGRAPHY:", 'lw', 'g') + " ")
+                    debug(d_keys = disco[0].keys())
                     for d in disco:
-                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + make_colors("{0} album".format(d.get('ART_NAME')), 'bl', 'ly') + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                        album_artist_name = d.get('ART_NAME')
+                        if artist_name == album_artist_name:
+                            album_artist_name = make_colors("{0} album".format(d.get('ART_NAME')), 'lw', 'lr')
+                        else:
+                            album_artist_name = make_colors("{0} album".format(d.get('ART_NAME')), 'b', 'y')
+                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
                         n += 1
                     q1 = raw_input(make_colors("Select Number:", 'lw', 'm') + " ")
                     if q1:
@@ -270,11 +282,11 @@ class Deez(object):
                                 if fformat == 'flac':
                                     print(make_colors(cls.format_number(track.get('TRACK_NUMBER'), len(
                                         tracks)) + "/" + cls.format_number(track.get('DISK_NUMBER'), len(
-                                            tracks)), 'lw', 'bl') + ". " + make_colors(track.get('SNG_TITLE'), 'bl', 'ly') + " [" + make_colors(str("%0.2f"%(int(track.get('DURATION')) / 60) + " minutes"), 'lr', 'lw')  + "/" + make_colors(str("%0.2f"%(bitmath.Byte(int(track.get('FILESIZE_FLAC'))).MB)) + " mb", 'lw', 'lr') + "]")
+                                            tracks)), 'lw', 'bl') + ". " + make_colors(track.get('SNG_TITLE'), 'bl', 'ly') + " [" + make_colors(str("%0.2f"%(int(track.get('DURATION')) / 60) + " minutes"), 'lr', 'lw')  + "/" + make_colors(str("%0.2f"%(bitmath.Byte(int(track.get('FILESIZE_FLAC'))).MB)) + " mb", 'lw', 'm') + "]")
                                 else:
                                     print(make_colors(cls.format_number(track.get('TRACK_NUMBER'), len(
                                         tracks)) + "/" + cls.format_number(track.get('DISK_NUMBER'), len(
-                                            tracks)), 'lw', 'bl') + ". " + make_colors(track.get('SNG_TITLE'), 'bl', 'ly') + " [" + make_colors(str("%0.2f"%(int(track.get('DURATION')) / 60) + " minutes"), 'lr', 'lw')  + "/" + make_colors(str("%0.2f"%(bitmath.Byte(int(track.get('FILESIZE'))).MB)) + " mb", 'lw', 'lr') + "]")
+                                            tracks)), 'lw', 'bl') + ". " + make_colors(track.get('SNG_TITLE'), 'bl', 'ly') + " [" + make_colors(str("%0.2f"%(int(track.get('DURATION')) / 60) + " minutes"), 'lr', 'lw')  + "/" + make_colors(str("%0.2f"%(bitmath.Byte(int(track.get('FILESIZE'))).MB)) + " mb", 'lw', 'm') + "]")
                                     n += 1
                         q2 = raw_input(make_colors("Select Number to download [a/all = download all]:", 'lw', 'm') + " ")
                         if q2:

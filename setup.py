@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 import __version__
 version = __version__.version
 setup(
-    name = 'deez',
+    name = 'deezing',
     version = version,
     author = 'Hadi Cahyadi LD',
     author_email = 'cumulus13@gmail.com',
@@ -22,7 +22,7 @@ setup(
         'make_colors',
         'pydebugger',
         'pywget',
-        'pywin32==223',
+        'pywin32>=223',
         'dcmd',
         'cefpython3'
     ],

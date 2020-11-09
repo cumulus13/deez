@@ -1,21 +1,24 @@
 from setuptools import setup, find_packages
 import __version__
+import sys
 version = __version__.version
 requirements = [
     'py-deezer',
     'configset',
-    'clipboard',
     'bitmath',
     'make_colors',
     'pydebugger',
     'pywget',
 ]
+
 if sys.platform == 'win32':
     requirements.append('pywin32>=223')
     requirements.append('dcmd')
+    requirements.append('clipboard')
     requirements.append('cefpython3')
 
 if 'linux' in sys.platform:
+    requirements.append('clipboard')
     requirements.append('cefpython3')
 
 setup(

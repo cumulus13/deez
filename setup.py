@@ -1,6 +1,23 @@
 from setuptools import setup, find_packages
 import __version__
 version = __version__.version
+requirements = [
+    'py-deezer',
+    'configset',
+    'clipboard',
+    'bitmath',
+    'make_colors',
+    'pydebugger',
+    'pywget',
+]
+if sys.platform == 'win32':
+    requirements.append('pywin32>=223')
+    requirements.append('dcmd')
+    requirements.append('cefpython3')
+
+if 'linux' in sys.platform:
+    requirements.append('cefpython3')
+
 setup(
     name = 'deezing',
     version = version,
@@ -14,18 +31,7 @@ setup(
     py_modules = ['deez'],
     packages = find_packages(),
     download_url = 'https://github.com/cumulus13/deez/tarball/master',
-    install_requires=[
-        'py-deezer',
-        'configset',
-        'clipboard',
-        'bitmath',
-        'make_colors',
-        'pydebugger',
-        'pywget',
-        'pywin32>=223',
-        'dcmd',
-        'cefpython3'
-    ],
+    install_requires=requirements,
     # TODO
     #entry_points={
     #    "console_scripts": ["drawille=drawille:__main__"]

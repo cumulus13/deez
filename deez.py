@@ -320,13 +320,14 @@ class Deez(object):
             except:
                 pass
         release_date = album_detail.get('release_date')
-        release_year = datetime.strptime(release_date, '%Y-%m-%d').year
+        release = datetime.strptime(release_date, '%Y-%m-%d')
+        release_year = release.year
         
         if not os.path.isdir(os.path.join(download_path, artist)):
             os.makedirs(os.path.join(download_path, artist))
         download_path = os.path.join(download_path, artist)
         # folder_name = artist + " - " + album_detail.get('title') + " (" + str(release_year) + ")"
-        folder_name = "(" + str(release_year) + ") " + album_detail.get('title')
+        folder_name = "(" + str(release_date) + ") " + album_detail.get('title')
         folder_name = re.sub("\: ", " - ", folder_name)
         folder_name = re.sub("\?|\*", " ", folder_name)
         folder_name = re.sub("\:", "", folder_name)

@@ -9,6 +9,7 @@ requirements = [
     'make_colors',
     'pydebugger',
     'pywget',
+    'xnotify'
 ]
 
 if sys.platform == 'win32':

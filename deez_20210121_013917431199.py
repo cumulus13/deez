@@ -616,7 +616,7 @@ class Deez(object):
         debug(numbers = numbers)
         # album_id = disco['ALB_ID']
         # debug(album_id = album_id)
-        print(make_colors("Total tracks download:", 'lc') + " " + make_colors(str(len(numbers)), 'y'))
+        
         for i in numbers:
             album_id = tracks[int(i) - 1].get('ALB_ID')
             debug(i = i)
@@ -723,7 +723,6 @@ class Deez(object):
                         else:
                             if os.path.isfile(os.path.join(download_path, tags_separated_by_comma['title'] + ".mp3")) and not overwrite:
                                 print("1"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(tags_separated_by_comma['title'], 'bl'))
                                 q = raw_input(make_colors("FILE EXISTS, OVERWRITE [y/n/x/q]:", 'lw', 'lr') + " ")
                                 if q == 'y' or q == 'Y':
                                     if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
@@ -747,7 +746,6 @@ class Deez(object):
 
                             elif os.path.isfile(os.path.join(download_path, name + ".mp3")) and not overwrite:
                                 print("2"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(name, 'bl'))
                                 q = raw_input(make_colors("FILE EXISTS, OVERWRITE [y/n/x/q]:", 'lw', 'lr') + " ")
                                 if q == 'y' or q == 'Y':
                                     if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
@@ -771,7 +769,6 @@ class Deez(object):
                             
                             elif os.path.isfile(os.path.join(download_path, name + ".mp3")) and overwrite:
                                 print("3"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(name, 'bl'))
                                 if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
                                     cls.create_image(download_path, filename = os.path.join(download_path, name), id = album_id)
                                 track_detail["download"](download_path, quality=track_formats.MP3_320, filename = name + "."+ fformat)
@@ -783,7 +780,7 @@ class Deez(object):
                                     sleeper.sleep('download', 'sleep')
                             else:
                                 print("4"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(name, 'bl'))
+                                debug("downloading ...")
                                 if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
                                     cls.create_image(download_path, filename = os.path.join(download_path, name), id = album_id)
                                 track_detail["download"](download_path, quality=track_formats.MP3_320, filename = name + "."+ fformat)
@@ -2100,7 +2097,7 @@ class Deez(object):
                                     break
                                 except:
                                     pass
-                            cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
+                            cls.download(tracks, track_number_1, fformat, download_path, overwrite, dont_overwrite)
                         
                     else:
                         album_id = disco[int(i) - 1].get('ALB_ID')
@@ -2111,7 +2108,7 @@ class Deez(object):
                                 break
                             except:
                                 pass
-                        cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
+                        cls.download(tracks, track_number, fformat, download_path, overwrite, dont_overwrite)
 
             elif "-" in q:
                 track_number = cls.split_number(q)
@@ -2126,7 +2123,7 @@ class Deez(object):
                             break
                         except:
                             pass
-                    cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
+                    cls.download(tracks, track_number, fformat, download_path, overwrite, dont_overwrite)
 
             
             notify('Deez', 'Deez', 'finish', 'All Download Finished !', None, None, None, cls.LOGO, True, True, True, None, None, True)

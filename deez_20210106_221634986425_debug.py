@@ -7,10 +7,7 @@ from pydeezer.constants import track_formats
 import os
 import sys
 import re
-if __name__ == '__main__':
-    from tagger2 import Tagger    
-else:
-    from .tagger2 import Tagger
+from tagger2 import Tagger
 import mutagen
 from pause import pause
 if sys.platform == 'win32':
@@ -196,7 +193,7 @@ class Deez(object):
             self.ARL = arl
             self.deezer = Deezer(arl = arl)
 
-    def browser_login(self, debugx = False, pausex = True):
+    def browser_login(self, debugx = True, pausex = True):
         from cefpython3 import cefpython as cef
         br_WindowInfo = cef.WindowInfo()
         if sys.platform == 'win32':
@@ -217,10 +214,10 @@ class Deez(object):
         print("Shutdown Complete")
         # del browser
         print("cookies =", cookies)
-        ##pause(pausex)
+        #pause(pausex)
         cef.Shutdown()    
 
-    def create_window(self, debugx = False, pausex = True):
+    def create_window(self, debugx = True, pausex = True):
         def OnDestroy(hwnd, message, wparam, lparam):
             win32gui.PostQuitMessage(0)
             return True
@@ -261,7 +258,7 @@ class Deez(object):
         return hwnd
 
     @classmethod
-    def find(cls, query, ftype="artist", debugx = False, pausex = True):
+    def find(cls, query, ftype="artist", debugx = True, pausex = True):
         '''
         	ftype: "artist | album | track | playlist" (str)
         '''
@@ -306,7 +303,7 @@ class Deez(object):
         return result
     
     @classmethod
-    def format_number(cls, number, length = 10, debugx = False, pausex = True):
+    def format_number(cls, number, length = 10, debugx = True, pausex = True):
         number = str(number).strip()
         zeros = len(str(length)) - len(number)
         r = ("0" * zeros) + str(number)
@@ -315,148 +312,52 @@ class Deez(object):
         return r
 
     @classmethod
-    def re_tag(cls, musicfile, single = False, more = False, force = False, **kwargs):
-        debug(more = more)
-        from mutagen.id3 import TALB, COMM, TPUB, TENC, TCOP
-        if single:
-            if more:
-                album_str = "SINGLES (more)"
-            else:
-                album_str = "SINGLES"
-        pub_str = "LICFACE"
-        if sys.version_info == 3:
-            cop_str = "\u00a9 2020 LICFACE"
-        else:
-            cop_str = u"\u00a9 2020 LICFACE" # or u"\N{COPYRIGHT SIGN}"
-        enc_str = "BLACKID"
-        album = ''
-        encodeby = ''
-        comment = ''
-        tag_html1, tag_html2 = Tagger.get_tag_html()
-        if kwargs:
-            for i in kwargs:
-                i2 = None
-                if i.islower():
-                    i2 = tag_html2.get(i)
-                    if isinstance(kwargs.get(i), getattr(mutagen.id3, i2)):
-                        f.update({i2:kwargs.get(i)})
-                elif i.isupper():
-                    if isinstance(kwargs.get(i), getattr(mutagen.id3, i)):
-                        f.update({i:kwargs.get(i)})
+    def re_tag(cls, musicfile, more = False):
+        f = Tagger(musicfile)
         try:
-            f = Tagger(musicfile)
-            debug(f = f)
-            if single:
-                if not getattr(f, 'album'):
-                    album = TALB(text = album_str)
-                    debug(album = album)
-                    f.update({'TALB':album})
-                else:
-                    album = f.album.text[0]
-                    debug(album = album)
-            
-            if not getattr(f, 'encodedby'):
-                encodeby = TENC(text = enc_str)
-                debug(encodeby = encodeby)
-                f.update({'TENC':encodeby})
+            album = f.album.text
+            f.comment.text = "From Album: {}\n{}".format(album, "LICFACE (licface@yahoo.com)")
+            if more:
+                f.album.text = "SINGLES (more)"
             else:
-                if not f.encodedby.text:
-                    f.encodeby.text = enc_str
-                    debug(f_encodeby_text = f.encodeby.text)
-
-            if not getattr(f, 'copyright'):
-                copyright = TCOP(text = cop_str)
-                debug(copyright = copyright)
-                f.update({'TCOP':copyright})
-            else:
-                if not f.copyright.text:
-                    f.copyright.text = cop_str
-                    debug(f_copyright_text = f.copyright.text)
-
-            if not getattr(f, 'publisher'):
-                publisher = TPUB(text = pub_str)
-                debug(publisher = publisher)
-                f.update({'TPUB':publisher})
-            else:
-                if not f.publisher.text:
-                    f.publisher.text = pub_str
-                    debug(f_publisher_text = f.publisher.text)
-            
-            if getattr(f, "comment"):
-                debug(f_comment = f.comment.text[0])
-                if (not isinstance(album, str) or not isinstance(album, bytes)) or single:
-                    f.comment.text = "{} \n {}".format(f.comment.text, "LICFACE (licface@yahoo.com)")    
-                    debug(f_comment = f.comment)
-                else:
-                    if single:
-                        f.comment.text = "From Album: {}\n{}".format(album, "LICFACE (licface@yahoo.com)")
-                        debug(f_comment = f.comment)
-                    else:
-                        f.comment.text = "{}".format("LICFACE (licface@yahoo.com)")
-                        debug(f_comment = f.comment)
-            else:
-                debug(album = album)
-                if not isinstance(album, str) or not isinstance(album, bytes):
-                    if single and (not album.text[0] == "SINGLE (more)" or not album.text[0] == "SINGLE"):
-                        comment = COMM(text = "From Album: {}\n{}".format(album.text, "LICFACE (licface@yahoo.com)"), lang="eng")
-                        debug(comment = comment)
-                    else:
-                        comment = COMM(text = "{}".format("LICFACE (licface@yahoo.com)"), lang="eng")
-                        debug(comment = comment)
-                else:
-                    if single:
-                        comment = COMM(text = "From Album: {}\n{}".format(album, "LICFACE (licface@yahoo.com)"), lang="eng")
-                        debug(comment = comment)
-                    else:
-                        comment = COMM(text = "{}".format("LICFACE (licface@yahoo.com)"), lang="eng")
-                        debug(comment = comment)
-                debug(comment = comment)
-                f.update({"COMM:Eng":comment})
-            
-            f.album.text = album_str
-            debug(f_album = f.album)
-            debug(saving = "saving ....")
+                f.album.text = "SINGLES"
             f.save()
-            debug(saving = "saving finish ....")
-        
         except:
-            print(traceback.format_exc())
-            # f = mutagen.File(musicfile)
-            # album = None
-            # comment = None
-            # for i in f.keys():
-            #     if "TALB" in i:
-            #         album = f.get(i)
-            #         debug(album = album)
-            #         break
-            # for i in f.keys():
-            #     if "COMM" in i:
-            #         comment = f.get(i)
-            #         debug(comment = comment)
-            #         break
-            # if not album:
-            #     album = TALB(text = album_str)
-            #     debug(album = album)
-            #     if comment:
-            #         comment.text = "{}".format("LICFACE (licface@yahoo.com)")
-            #         debug(comment = comment)
-            #     else:
-            #         comment = COMM(text = "{}".format("LICFACE (licface@yahoo.com)"), lang="eng")
-            #         debug(comment = comment)
-            #     f.update({"COMM:Eng":comment})
-            #     f.update({'TALB':album})
-            # else:
-            #     if comment:
-            #         comment.text = "From Album: {}\n{}".format(album.text[0], "LICFACE (licface@yahoo.com)")
-            #         debug(comment = comment)
-            #     else:
-            #         comment = COMM(text = "From Album: {}\n{}".format(album.text[0], "LICFACE (licface@yahoo.com)"), lang="eng")
-            #         debug(comment = comment)
-            #     f.update({"COMM:Eng":comment})
-            # f.save()
+            f = mutagen.File(musicfile)
+            album = None
+            comment = None
+            for i in f.keys():
+                if "TPE2" in i:
+                    album = f.get(i)
+                    break
+            for i in in f.keys():
+                if "COMM" in i:
+                    comment = f.get(i)
+                    break
+            if not album:
+                from mutagen.id3 import TPE2
+                if more:
+                    album = TPE2(text = "SINGLE (more)")
+                else:
+                    album = TPE2(text = "SINGLE")
+                if comment:
+                    comment.text = "{}".format("LICFACE (licface@yahoo.com)")
+                else:
+                    from mutagen.id3 import COMM
+                    comment = COMM(text = "From Album: {}".format("LICFACE (licface@yahoo.com)"), lang="eng")
+                    f.update({"COMM:Eng":comment})
+                f.update({'TPE2':album})
+            else:
+                if comment:
+                    comment.text = "From Album: {}\n{}".format(album.text, "LICFACE (licface@yahoo.com)")
+                else:
+                    from mutagen.id3 import COMM
+                    comment = COMM(text = "From Album: {}\n{}".format(album.text, "LICFACE (licface@yahoo.com)"), lang="eng")
+                    f.update({"COMM:Eng":comment})
+            f.save()
 
     @classmethod
-    def re_numbering_files(cls, download_path, album_artist = None, fformat = 'mp3', list_track_mp3 = None, debugx = False, pausex = True):
+    def re_numbering_files(cls, download_path, album_artist = None, fformat = 'mp3', list_track_mp3 = None, debugx = True, pausex = True):
         if fformat:
             if "." == fformat[0]:
                 fformat = fformat[1:]
@@ -577,7 +478,7 @@ class Deez(object):
                 nt += 1
 
     @classmethod
-    def downloader(cls, track_detail, filename, fformat, download_path, quality = track_formats.MP3_320, nmax = 600, debugx = False, pausex = True):
+    def downloader(cls, track_detail, filename, fformat, download_path, quality = track_formats.MP3_320, nmax = 600, debugx = True, pausex = True):
         # filename = name + "."+ fformat
         # download_track(track, download_dir, quality=None, fallback=True, filename=None, renew=False, with_metadata=True, with_lyrics=True, tag_separator=', ', **kwargs)
         filename = filename + fformat
@@ -598,7 +499,7 @@ class Deez(object):
                 break
 
     @classmethod
-    def download(cls, tracks, numbers = None, fformat = 'mp3', download_path = None, overwrite = False, dont_overwrite = False, download_all_single = False, nmax = 600, debugx = False, pausex = True):
+    def download(cls, tracks, numbers = None, fformat = 'mp3', download_path = None, overwrite = False, dont_overwrite = False, download_all_single = False, nmax = 600, debugx = True, pausex = True):
         # os.environ.update({'DEBUG':'1'})
         SLEEP = None
         debug(numbers = numbers)
@@ -616,7 +517,7 @@ class Deez(object):
         debug(numbers = numbers)
         # album_id = disco['ALB_ID']
         # debug(album_id = album_id)
-        print(make_colors("Total tracks download:", 'lc') + " " + make_colors(str(len(numbers)), 'y'))
+        
         for i in numbers:
             album_id = tracks[int(i) - 1].get('ALB_ID')
             debug(i = i)
@@ -630,6 +531,8 @@ class Deez(object):
             while 1:
                 try:
                     track_detail = cls.deezer.get_track(track_id)
+            #         album_detail = cls.deezer.get_album(album_id)
+            #         # debug(track_detail = track_detail)
                     break
                 except:
                     pass
@@ -665,12 +568,12 @@ class Deez(object):
                     cls.CD = discnumber
             
             name = cls.format_number(tracks[int(i) - 1].get('TRACK_NUMBER'), len(tracks)) + ". " + tags_separated_by_comma['title']# + ".mp3"
-            debug(name = name)
-            debug(TRACK_NUMBER_INFO = track_detail.get('info').get('DATA').get('TRACK_NUMBER'))
-            debug(DISK_NUMBER_INFO = track_detail.get('info').get('DATA').get('DISK_NUMBER'))
-            debug(TRACK_NUMBER_TAGS = track_detail.get('tags').get('tracknumber'))
-            debug(DISK_NUMBER_TAGS = track_detail.get('tags').get('discnumber'))
-            debug(download_all_single = download_all_single)
+            debug(name = name, debug = True)
+            debug(TRACK_NUMBER_INFO = track_detail.get('info').get('DATA').get('TRACK_NUMBER'), debug = True)
+            debug(DISK_NUMBER_INFO = track_detail.get('info').get('DATA').get('DISK_NUMBER'), debug = True)
+            debug(TRACK_NUMBER_TAGS = track_detail.get('tags').get('tracknumber'), debug = True)
+            debug(DISK_NUMBER_TAGS = track_detail.get('tags').get('discnumber'), debug = True)
+            debug(download_all_single = download_all_single, debug = True)
 
             if download_all_single:
                 track_detail.get('info').get('DATA').update({'TRACK_NUMBER':str(cls.format_number(i, len(tracks)))})
@@ -685,13 +588,13 @@ class Deez(object):
                 name = cls.format_number(i, len(tracks)) + ". " + tags_separated_by_comma['title']
             name = cls.normalization_folder(name)
             # print("NAME:", name)
-            debug(name = name)
-            debug(TRACK_NUMBER_INFO = track_detail.get('info').get('DATA').get('TRACK_NUMBER'))
-            debug(DISK_NUMBER_INFO = track_detail.get('info').get('DATA').get('DISK_NUMBER'))
-            debug(TRACK_NUMBER_TAGS = track_detail.get('tags').get('tracknumber'))
-            debug(DISK_NUMBER_TAGS = track_detail.get('tags').get('discnumber'))
-            debug(i = i)
-            # #pause()
+            debug(name = name, debug = True)
+            debug(TRACK_NUMBER_INFO = track_detail.get('info').get('DATA').get('TRACK_NUMBER'), debug = True)
+            debug(DISK_NUMBER_INFO = track_detail.get('info').get('DATA').get('DISK_NUMBER'), debug = True)
+            debug(TRACK_NUMBER_TAGS = track_detail.get('tags').get('tracknumber'), debug = True)
+            debug(DISK_NUMBER_TAGS = track_detail.get('tags').get('discnumber'), debug = True)
+            debug(i = i, debug = True)
+            # pause()
             debug(track_detail = track_detail.get('info').get('DATA').keys())
             # debug(FILESIZE_AAC_64 = track_detail.get('info').get('DATA')['FILESIZE_AAC_64'])
             # debug(FILESIZE_MP3_64 = track_detail.get('info').get('DATA')['FILESIZE_MP3_64'])
@@ -715,21 +618,19 @@ class Deez(object):
                         debug(FILE_3 = track_detail.get('info').get('DATA')['SNG_TITLE'])
                         debug(CHECK_FILE_1 = os.path.isfile(os.path.join(download_path, tags_separated_by_comma['title'] + ".mp3")))    
                         debug(CHECK_FILE_2 = os.path.isfile(os.path.join(download_path, name + ".mp3")))
-                        # #pause(pausex)
+                        # pause(pausex)
                         if os.path.isfile(os.path.join(download_path, name + ".mp3")) and dont_overwrite:
                             pass
                         elif os.path.isfile(os.path.join(download_path, tags_separated_by_comma['title'] + ".mp3")) and dont_overwrite:
                             pass
                         else:
                             if os.path.isfile(os.path.join(download_path, tags_separated_by_comma['title'] + ".mp3")) and not overwrite:
-                                print("1"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(tags_separated_by_comma['title'], 'bl'))
                                 q = raw_input(make_colors("FILE EXISTS, OVERWRITE [y/n/x/q]:", 'lw', 'lr') + " ")
                                 if q == 'y' or q == 'Y':
                                     if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
                                         cls.create_image(download_path, filename = os.path.join(download_path, name), id = album_id)
                                     track_detail["download"](download_path, quality=track_formats.MP3_320, filename = name + "."+ fformat)
-                                    #cls.re_tag(os.path.join(download_path, name + "." + fformat))
+                                    cls.re_tag(os.path.join(download_path, name + "." + fformat))
                                     # def downloader(cls, track_detail, filename, fformat, download_path, quality = track_formats.MP3_320, nmax = 600):
                                     # cls.downloader(track_detail, name, fformat, download_path, track_formats.MP3_320, nmax)
                                     if SLEEP and str(SLEEP).isdigit():
@@ -746,15 +647,12 @@ class Deez(object):
                                     break
 
                             elif os.path.isfile(os.path.join(download_path, name + ".mp3")) and not overwrite:
-                                print("2"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(name, 'bl'))
                                 q = raw_input(make_colors("FILE EXISTS, OVERWRITE [y/n/x/q]:", 'lw', 'lr') + " ")
                                 if q == 'y' or q == 'Y':
                                     if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
                                         cls.create_image(download_path, filename = os.path.join(download_path, name), id = album_id)
                                     track_detail["download"](download_path, quality=track_formats.MP3_320, filename = name + "."+ fformat)
-                                    debug(fformat = fformat)
-                                    #cls.re_tag(os.path.join(download_path, name + "." + fformat))
+                                    cls.re_tag(os.path.join(download_path, name + "." + fformat))
                                     # cls.downloader(track_detail, name, fformat, download_path, track_formats.MP3_320, nmax)
                                     if SLEEP and str(SLEEP).isdigit():
                                         sleeper.sleep(SL=int(SLEEP))
@@ -770,24 +668,21 @@ class Deez(object):
                                     break
                             
                             elif os.path.isfile(os.path.join(download_path, name + ".mp3")) and overwrite:
-                                print("3"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(name, 'bl'))
                                 if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
                                     cls.create_image(download_path, filename = os.path.join(download_path, name), id = album_id)
                                 track_detail["download"](download_path, quality=track_formats.MP3_320, filename = name + "."+ fformat)
-                                #cls.re_tag(os.path.join(download_path, name + "." + fformat))
+                                cls.re_tag(os.path.join(download_path, name + "." + fformat))
                                 # cls.downloader(track_detail, name, fformat, download_path, track_formats.MP3_320, nmax)
                                 if SLEEP and str(SLEEP).isdigit():
                                     sleeper.sleep(SL=int(SLEEP))
                                 elif cls.config.get_config('download', 'sleep'):
                                     sleeper.sleep('download', 'sleep')
                             else:
-                                print("4"*100)
-                                print(make_colors("tracks: #{}:".format(tags_separated_by_comma['tracknumber']), 'g') + " " + make_colors(name, 'bl'))
+                                debug("downloading ...")
                                 if cls.DOWNLOAD_INTO_SINGLE_FOLDER or cls.DOWNLOAD_INTO_ARTIST_FOLDER:
                                     cls.create_image(download_path, filename = os.path.join(download_path, name), id = album_id)
                                 track_detail["download"](download_path, quality=track_formats.MP3_320, filename = name + "."+ fformat)
-                                #cls.re_tag(os.path.join(download_path, name + "." + fformat))
+                                cls.re_tag(os.path.join(download_path, name + "." + fformat))
                                 # cls.downloader(track_detail, name, fformat, download_path, track_formats.MP3_320, nmax)
                                 if SLEEP and str(SLEEP).isdigit():
                                     sleeper.sleep(SL=int(SLEEP))
@@ -897,17 +792,15 @@ class Deez(object):
                         break
                     except:
                         pass
-        
-        cls.clean_config()
-
         if error == "pass":
             return error
         elif error == "exit":
             sys.exit()
+        cls.clean_config()
         return True
     
     @classmethod
-    def print_config_help(cls, debugx = False, pausex = True):
+    def print_config_help(cls, debugx = True, pausex = True):
         make_colors("[n]o")
         make_colors("[n]so")
         make_colors("[n]do")
@@ -935,7 +828,7 @@ class Deez(object):
         make_colors("[n]dvOA")
 
     @classmethod
-    def set_config(cls, q, debugx = False, pausex = True):
+    def set_config(cls, q, debugx = True, pausex = True):
         import inspect
         q_number = q
         album_numbers = None
@@ -1117,14 +1010,14 @@ class Deez(object):
         return q_number
             
     @classmethod
-    def split_number(cls, x, debugx = False, pausex = True):
+    def split_number(cls, x, debugx = True, pausex = True):
         numbers = []
         debug(x = x)
         if "-" in x:
             fr, to = x.split("-")
             fr = fr.strip()
             if str(to).isdigit():
-                to = int(to.strip()) + 1
+                to = to.strip() + 1
             if str(fr).isdigit() and str(to).isdigit():
                 return list(range(int(fr), int(to)))
             elif str(fr).isdigit() and not str(to).isdigit():
@@ -1156,7 +1049,7 @@ class Deez(object):
         return numbers
 
     @classmethod
-    def normalization_folder(cls, folder, debugx = False, pausex = True):
+    def normalization_folder(cls, folder, debugx = True, pausex = True):
         folder = re.sub("\: ", " - ", folder)
         folder = re.sub("\?|\*", " ", folder)
         folder = re.sub("\:", "", folder)
@@ -1168,7 +1061,7 @@ class Deez(object):
         return folder
 
     @classmethod
-    def clean_config(cls, debugx = False, pausex = True):
+    def clean_config(cls, debugx = True, pausex = True):
         cls.DOWNLOAD_ORIGINAL = False #download all album(official/single)
         cls.DOWNLOAD_DISCOGRAPHY = False #download all album(Discography)
         cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY = False #download all single album only from original album artist only
@@ -1187,7 +1080,6 @@ class Deez(object):
         cls.SHOW_VARIOUS_DISCOGRAPHY = False #show all various artist album only from artit discography
 
         cls.DOWNLOAD_ALL = False
-        cls.DIRECT_DOWNLOAD = False
 
         cls.DOWNLOAD_PATH = os.getcwd()
         cls.FFORMAT = "mp3"
@@ -1195,7 +1087,7 @@ class Deez(object):
         cls.FTYPE = 'artist'
 
     @classmethod
-    def create_download_path(cls, id, download_path, is_single = False, original_artist = False, single_on_artist_folder = False, single_on_single_folder = False, debugx = False, pausex = True):
+    def create_download_path(cls, id, download_path, is_single = False, original_artist = False, single_on_artist_folder = False, single_on_single_folder = False, debugx = True, pausex = True):
         '''
             parameter:
                 id = (int) album_id
@@ -1265,7 +1157,7 @@ class Deez(object):
         return download_path
 
     @classmethod
-    def detect_input(cls, data_input, debugx = False, pausex = True):
+    def detect_input(cls, data_input, debugx = True, pausex = True):
         is_artist = False
         is_album = False
         data = None
@@ -1285,7 +1177,7 @@ class Deez(object):
         return data, is_artist, is_album
 
     @classmethod
-    def create_image(cls, download_path, cover_data = None, filename = None, id = None, album_detail = None, debugx = False, pausex = True):
+    def create_image(cls, download_path, cover_data = None, filename = None, id = None, album_detail = None, debugx = True, pausex = True):
         cover_name = 'Cover'
         poster_name = 'Poster'
         artist_pic = "Artist"
@@ -1341,7 +1233,7 @@ class Deez(object):
                 cover_file.write(cover_data.get('image'))
         
     @classmethod
-    def print_nav(cls, q = None, debugx = False, pausex = True):
+    def print_nav(cls, q = None, debugx = True, pausex = True):
         if not q:
             print(
                 make_colors("n", 'b', 'lc') + "[" + make_colors("o", 'b', 'y') + make_colors("O", 'b', 'ly') + make_colors("d", 'b', 'lg') + make_colors("s", 'lw', 'bl') + make_colors("S", 'lw', 'lb') + make_colors("ss", 'lg', 'bl') + make_colors("a", 'lw', 'lr') + make_colors("A", 'lw', 'r') + make_colors("v", 'lw', 'm') + make_colors("V", 'lw', 'lm')
@@ -1367,7 +1259,7 @@ class Deez(object):
         return q
 
     @classmethod
-    def create_and_download(cls, disco, ORGARTIST, INTO_SINGLE_FOLDER, INTO_ARTIST_FOLDER, IS_SINGLE, fformat, overwrite, dont_overwrite, download_path, album_numbers = None, q = None, debugx = False, pausex = True):
+    def create_and_download(cls, disco, ORGARTIST, INTO_SINGLE_FOLDER, INTO_ARTIST_FOLDER, IS_SINGLE, fformat, overwrite, dont_overwrite, download_path, album_numbers = None, q = None, debugx = True, pausex = True):
         download_path0 = download_path
         debug(ORGARTIST = ORGARTIST)
         debug(album_numbers = album_numbers)
@@ -1415,13 +1307,13 @@ class Deez(object):
         debug(INTO_ARTIST_FOLDER = INTO_ARTIST_FOLDER)
         debug(INTO_SINGLE_FOLDER = INTO_SINGLE_FOLDER)
         debug(download_path0 = download_path0)
-        # #pause(pausex)
+        # pause(pausex)
         if ORGARTIST or INTO_ARTIST_FOLDER:
             cls.re_numbering_files(download_path0, ORGARTIST)
-        # #pause(pausex)
+        # pause(pausex)
 
     @classmethod
-    def check_config_artist(cls, ftype, artist_id = None, disco = None, artist_name = None, debugx = False, pausex = True):
+    def check_config_artist(cls, ftype, artist_id = None, disco = None, artist_name = None, debugx = True, pausex = True):
         if cls.SHOW_ORIGINAL_ALBUM and ftype == 'artist' and artist_id:
             if not disco:
                 disco1 = cls.deezer.get_artist(artist_id)
@@ -1452,32 +1344,25 @@ class Deez(object):
         return disco
 
     @classmethod
-    def filter_disco(cls, disco, artist_name = False, single = False, various = False, debugx = False, pausex = True):
+    def filter_disco(cls, disco, artist_name = False, single = False, various = False, debugx = True, pausex = True):
         debug(len_disco = len(disco))
         debug(artist_name = artist_name)
         debug(single = single)
         debug(cls_IS_SINGLE = cls.IS_SINGLE)
         debug(various = various)
-        if not artist_name:
-            artist_name = cls.ORGARTIST
         disco_filter = []
         for ds in disco:
-            debug(ds_key = ds.keys(), debug = True)
-            debug(ds_ARTIST = ds.get('ART_NAME'), debug = True)
-            debug(artist_name = artist_name, debug = True)
+            # debug(ART_NAME = ds.get('ART_NAME'))
+            # debug(artist_name = artist_name)
             if artist_name:
-                if single or cls.SHOW_SINGLE_DISCOGRAPHY_ARTIST_ONLY:
+                if single or cls.SHOW_SINGLE_DISCOGRAPHY_ARTIST_ONLY or cls.SHOW_SINGLE_DISCOGRAPHY_ARTIST_ONLY:
                     if ds.get('TYPE') == '0' or ds.get('type') == '0' or ds.get('TYPE') == 0 or ds.get('type') == 0:
                         disco_filter.append(ds)
-                elif cls.SHOW_SINGLE_ORIGINAL_ARTIST_ONLY:
-                    if artist_name.lower() == ds.get('ART_NAME').lower() and (ds.get('TYPE') == '0' or ds.get('type') == '0' or ds.get('TYPE') == 0 or ds.get('type') == 0):
-                        disco_filter.append(ds)
                 else:
-                    if cls.SHOW_ORIGINAL_ALBUM:
-                        if ds.get('ART_NAME').lower() == artist_name.lower():
-                            disco_filter.append(ds)
+                    if ds.get('ART_NAME') == artist_name:
+                        disco_filter.append(ds)
                     elif various or cls.SHOW_VARIOUS_ORIGINAL or cls.SHOW_VARIOUS_DISCOGRAPHY:
-                        if ds.get('ART_NAME').lower() != artist_name.lower() or ds.get('ART_NAME').lower() == "various artists" or "various artists" in ds.get('ART_NAME').lower():
+                        if ds.get('ART_NAME') != artist_name:
                             disco_filter.append(ds)
                     else:
                         disco_filter.append(ds)
@@ -1491,7 +1376,7 @@ class Deez(object):
                     debug(ds_keys = ds.keys())
                     debug(ds_get_ARTISTS = ds.get('ARTISTS'))
                     debug(ds_get_ART_NAME = ds.get('ART_NAME'))
-                    if ds.get('ART_NAME').lower() == "various artists" or "various artists" in ds.get('ART_NAME').lower():
+                    if "various artists" in ds.get('ART_NAME').lower():
                         disco_filter.append(ds)
                     else:
                         try:
@@ -1501,16 +1386,18 @@ class Deez(object):
                             pass
                     
         debug(len_disco_filter = len(disco_filter))
-        
+        # ORGARTIST = cls.ORGARTIST
+        # cls.clean_config()
+        # cls.ORGARTIST = ORGARTIST
         if disco_filter:
             return disco_filter
         else:
             return disco
 
     @classmethod
-    def print_disco_album(cls, disco, ftype, print_list = True, orgartist = None, debugx = False, pausex = True):
+    def print_disco_album(cls, disco, ftype, print_list = True, orgartist = None, debugx = True, pausex = True):
         debug(cls_ORGARTIST = cls.ORGARTIST)
-        #pause(pausex)
+        pause(pausex)
         if orgartist:
             cls.ORGARTIST = orgartist
         artist_id = None
@@ -1537,7 +1424,7 @@ class Deez(object):
             disco = disco1
         # debug(disco = disco)
         debug(len_disco = len(disco))
-        #pause(pausex)
+        pause(pausex)
         if not disco:
             return cls.download_interactive(cls.QUERY)
         # filter_disco(cls, disco, artist_name = False, single = False, various = False):
@@ -1599,15 +1486,15 @@ class Deez(object):
         debug(len_disco_f = len(disco_f))
         if not disco == disco_f:
             disco = disco_f
-            #pause(pausex)
+            pause(pausex)
             return cls.print_disco_album(disco, ftype, print_list)
-        debug(cls_DOWNLOAD_SINGLE_ORIGINAL_ONLY = cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY)
-        debug(cls_DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY = cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY)
-        #pause(pausex)
+        debug(cls_DOWNLOAD_SINGLE_ORIGINAL_ONLY = cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY, debug = True)
+        debug(cls_DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY = cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY, debug = True)
+        pause(pausex)
         return disco, q
 
     @classmethod
-    def print_tracks(cls, album_id = None, disco = None, q = None, debugx = False, pausex = True):
+    def print_tracks(cls, album_id = None, disco = None, q = None, debugx = True, pausex = True):
         if not album_id and disco and q:
             album_id = disco[int(q) - 1].get('ALB_ID')
             
@@ -1642,10 +1529,10 @@ class Deez(object):
             elif is_artist and ftype == 'album':
                 return cls.download_interactive(q, cls.DOWNLOAD_PATH, 'artist', cls.FFORMAT, True, cls.OVERWRITE, cls.DONT_OVERWRITE)
             debug(q = q)
-            #pause(pausex)
+            pause(pausex)
             q = cls.set_config(q)
             debug(q = q)
-            #pause(pausex)
+            pause(pausex)
         else:
             return cls.download_interactive(cls.QUERY, cls.DOWNLOAD_PATH, cls.FTYPE, cls.FFORMAT, True, cls.OVERWRITE, cls.DONT_OVERWRITE)
 
@@ -1653,7 +1540,7 @@ class Deez(object):
         return tracks, q
 
     @classmethod
-    def search(cls, query, ftype = 'artist', print_list = True, q_search = None, result = None, orgartist = None, debugx = False, pausex = True):
+    def search(cls, query, ftype = 'artist', print_list = True, q_search = None, result = None, orgartist = None, debugx = True, pausex = True):
         """Only search by artist|album|track
         
         :param query: text search for, default to None 
@@ -1687,7 +1574,7 @@ class Deez(object):
         if q_search and str(q_search).isdigit():
             print_list = False
         
-        #pause(pausex)
+        pause(pausex)
         if orgartist:        
             cls.ORGARTIST = orgartist
         disco = None
@@ -1766,10 +1653,10 @@ class Deez(object):
                 EXIT = True
                 break
             else:
-                #pause(pausex)
+                pause(pausex)
                 if q_search and not str(q_search).isdigit():
                     cls.clean_config()
-                    #pause(pausex)
+                    pause(pausex)
                     return cls.download_interactive(q_search, cls.DOWNLOAD_PATH, 'artist', cls.FFORMAT, print_list, cls.OVERWRITE, cls.DONT_OVERWRITE)
                 n = 1
                 if print_list:
@@ -1781,36 +1668,30 @@ class Deez(object):
                         n +=1
                 q_search = cls.print_nav()
                 q_search = cls.set_config(q_search)
-                #pause(pausex)
+                pause(pausex)
                 if q_search and str(q_search).isdigit():
-                    #pause(pausex)
+                    pause(pausex)
                     break
                 else:
                     cls.clean_config()
-                    #pause(pausex)
+                    pause(pausex)
                     return cls.download_interactive(q_search, cls.DOWNLOAD_PATH, 'artist', cls.FFORMAT, print_list, cls.OVERWRITE, cls.DONT_OVERWRITE)
                 
         if EXIT:
             sys.exit()
         debug(q = q_search)
         debug(ftype = ftype)
-        #pause(pausex)
+        pause(pausex)
 
         if q_search:
             q_search = str(q_search).strip()
             q_search = cls.set_config(q_search)
         debug(q = q_search)
-        #pause(pausex)
+        pause(pausex)
         if 'artist' in ftype and str(q_search).isdigit():
             id = result[int(q_search) - 1].get('id')
             debug(album_id = id)
-            while 1:
-                try:
-                    disco = cls.deezer.get_artist_discography(id)
-                    break
-                except:
-                    tp, tr, vl = sys.exc_info()
-                    print(make_colors("ERROR:", 'lw', 'bl') + " " + make_colors(vl.__class__.__name__, 'lw', 'bl'))
+            disco = cls.deezer.get_artist_discography(id)
         elif 'album' in ftype:
             disco = result
         elif 'track' in ftype:
@@ -1831,7 +1712,7 @@ class Deez(object):
         disco = cls.filter_disco(disco)
         debug(len_disco = len(disco))
         debug(q_search = q_search)
-        #pause(pausex)
+        pause(pausex)
         # if not cls.ORGARTIST and (ftype == 'artist' or ftype == 'album'):
         if len(disco) == 1 and q_search:
             if str(q_search).isdigit():
@@ -1849,11 +1730,11 @@ class Deez(object):
         debug(ORGARTIST = cls.ORGARTIST)
         cls.Q_SEARCH = q_search
         debug(q_search = q_search)
-        #pause(pausex)
+        pause(pausex)
         return disco, ftype
 
     @classmethod
-    def download_interactive(cls, query, download_path = None, ftype='artist', fformat='mp3', print_list = True, overwrite = False, dont_overwrite = False, disco = None, artist = None, q = None, debugx = False, pausex = True):
+    def download_interactive(cls, query, download_path = None, ftype='artist', fformat='mp3', print_list = True, overwrite = False, dont_overwrite = False, disco = None, artist = None, q = None, debugx = True, pausex = True):
         cls.clean_config()
         cls.QUERY = query
         cls.DOWNLOAD_PATH = download_path
@@ -1865,7 +1746,7 @@ class Deez(object):
 
         debug(cls_ORGARTIST = cls.ORGARTIST)
         debug(pausex = pausex)
-        #pause(pausex)
+        pause(pausex)
         disco_selected = None
 
         if artist and ftype == 'artist':
@@ -1886,44 +1767,41 @@ class Deez(object):
         if not disco:
             print(make_colors("No Discography Found !", 'lw', 'lr'))
             sys.exit(0)
-        #pause(pausex)
+        pause(pausex)
         disco_f = cls.filter_disco(disco)
         debug(cls_ORGARTIST = cls.ORGARTIST, debug = debugx)
-        #pause(pausex)
-        debug(len_disco = len(disco), debug = True)
-        debug(len_disco_f = len(disco_f), debug = True)
-        
+        pause(pausex)
+        debug(len_disco = len(disco))
+        debug(len_disco_f = len(disco_f))
         if disco:
             disco, q = cls.print_disco_album(disco, ftype, print_list)
         if not len(disco_f) > 0:
             print(make_colors("No Discography SET Found !", 'lw', 'lr'))
-            #pause(pausex)
+            pause(pausex)
             return cls.download_interactive(query, download_path0, ftype, fformat, print_list, overwrite, dont_overwrite)
         debug(len_disco = len(disco))
         debug(len_disco_f = len(disco_f))
-        #pause(pausex)
+        pause(pausex)
         while 1:
             if len(disco) == len(disco_f):
                 break
             else:
-                debug(len_disco = len(disco), debug = True)
-                debug(len_disco_f = len(disco_f), debug = True)
+                debug(len_disco = len(disco))
+                debug(len_disco_f = len(disco_f))
                 disco, q = cls.print_disco_album(disco_f, ftype, print_list)
                 disco_f = cls.filter_disco(disco)
-                debug(len_disco = len(disco), debug = True)
-                debug(len_disco_f = len(disco_f), debug = True)
+                debug(len_disco = len(disco))
+                debug(len_disco_f = len(disco_f))
 
         debug(len_disco = len(disco))
-        debug(q = q, debug = True)
-        debug(cls_DOWNLOAD_SINGLE_ORIGINAL_ONLY = cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY)
-        debug(cls_DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY = cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY)
-        #pause(pausex)
-        # if q and not str(q).isdigit():
-        #     print("1"*100)
-        #     return cls.download_interactive(q, download_path0, ftype, fformat, print_list, overwrite, dont_overwrite)
+        debug(q = q)
+        debug(cls_DOWNLOAD_SINGLE_ORIGINAL_ONLY = cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY, debug = True)
+        debug(cls_DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY = cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY, debug = True)
+        pause(pausex)
+        if q and not str(q).isdigit():
+            return cls.download_interactive(q, download_path0, ftype, fformat, print_list, overwrite, dont_overwrite)
 
         if q and str(q).isdigit() and int(q) <= len(disco):
-            print("2"*100)
             # disco_selected = disco[int(q) - 1]
             album_id = disco[int(q) - 1].get('ALB_ID')
             debug(album_id = album_id)
@@ -1935,7 +1813,7 @@ class Deez(object):
                 album_id = disco[int(q) - 1].get('id')
             debug(album_id = album_id)
             debug(cls_DIRECT_DOWNLOAD = cls.DIRECT_DOWNLOAD)
-            #pause(pausex)
+            pause(pausex)
             if cls.DIRECT_DOWNLOAD or cls.DOWNLOAD_DISCOGRAPHY or cls.DOWNLOAD_ORIGINAL:
                 while 1:
                     try:
@@ -1945,10 +1823,10 @@ class Deez(object):
                         pass
                 download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                 debug(download_path = download_path)
-                #pause(pausex)
+                pause(pausex)
                 cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
             elif cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY or cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY:
-                #pause()
+                pause()
                 if cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY:
                     disco = cls.filter_disco(disco, single = True)
                 elif cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY:
@@ -1974,42 +1852,40 @@ class Deez(object):
                 tracks, q = cls.print_tracks(album_id, disco, q)            
                 debug(len_tracks = len(tracks))
                 debug(q = q)
-                #pause(pausex)
+                pause(pausex)
                 if q and q.isdigit() and tracks and int(q) <= len(tracks):
-                    download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
+                    download_path = cls.create_download_path(album_id, download_path, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                     debug(download_path = download_path)
-                    #pause(pausex)
+                    pause(pausex)
                     download_status = cls.download(tracks, [int(q)], fformat, download_path, overwrite, dont_overwrite)
                     debug(download_status = download_status)
-                    #pause(pausex)
+                    pause(pausex)
                     if download_status == "pass":
                         return cls.download_interactive(query, download_path0, ftype, fformat, print_list, overwrite, dont_overwrite)
                     
                 elif cls.DOWNLOAD_ALL:
-                    download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
+                    download_path = cls.create_download_path(album_id, download_path, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                     debug(download_path = download_path)
-                    #pause(pausex)
+                    pause(pausex)
                     cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
 
                 elif q and ("-" in q or "," in q) and tracks:
                     if "," in q:
-                        track_number_1 = re.split(",", q)
+                        track_number_1 = re.split(",", q2)
                         debug(track_number_1 = track_number_1)
                         track_number_1 = list(filter(None, track_number_1))
                         debug(track_number_1 = track_number_1)
-                        download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                         for i in track_number_1:
                             if "-" in i:
-                                track_number = cls.split_number(i)
+                                track_number, _ = cls.split_number(i)
                                 cls.download(tracks, track_number, fformat, download_path, overwrite, dont_overwrite)
                             else:
                                 cls.download(tracks, [i], fformat, download_path, overwrite, dont_overwrite)
-                    elif "-" in q:
-                        download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
-                        track_number = cls.split_number(q)
+                    elif "-" in q2:
+                        track_number, _ = cls.split_number(q2)
                         debug(track_number = track_number)
                         cls.download(tracks, track_number, fformat, download_path, overwrite, dont_overwrite)
-                        
+
                     else:
                         pass
                     
@@ -2021,17 +1897,16 @@ class Deez(object):
                     return cls.download_interactive(query, cls.DOWNLOAD_PATH, 'artist', cls.FFORMAT, print_list, cls.OVERWRITE, cls.DONT_OVERWRITE)
         
         elif (cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY or cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY) and disco:
-            print("3"*100)
 
             if (cls.DOWNLOAD_INTO_ARTIST_FOLDER or cls.DOWNLOAD_INTO_SINGLE_FOLDER) and (cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY or cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY):
-                #pause()
+                pause()
                 if cls.IS_SINGLE:
                     if cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY:
                         disco = cls.filter_disco(disco, single = True)
                     elif cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY:
                         disco = cls.filter_disco(disco, cls.ORGARTIST, single = True)
                     debug(len_disco = len(disco))
-                    #pause()
+                    pause()
                     single_tracks_0 = []
                     single_tracks = []
                     for ds in disco:
@@ -2055,16 +1930,16 @@ class Deez(object):
                     download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                     debug(download_path = download_path)        
                     debug(download_path = download_path)
-                    #pause()
+                    pause()
 
                     download_status = cls.download(single_tracks, None, fformat, download_path, overwrite, dont_overwrite, True)
                     debug(download_status = download_status)
-                    #pause()
+                    pause()
                 else:
                     download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                     debug(download_path = download_path)        
                     debug(download_path = download_path)
-                    #pause()
+                    pause()
 
                     for ds in disco:
                         album_id = ds.get('ALB_ID')
@@ -2077,56 +1952,50 @@ class Deez(object):
                                 pass
                         download_status = cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
                         debug(download_status = download_status)
-                    #pause()
+                    pause()
 
+                        
         elif q and ("-" in q or "," in q) and disco:
-            print("4"*100)
             if "," in q:
-                track_number = re.split(",", q)
+                track_number = re.split(",", q2)
                 debug(track_number = track_number)
                 track_number = list(filter(None, track_number))
                 debug(track_number = track_number)
                 for i in track_number:
                     if "-" in i:
-                        track_number_1 = cls.split_number(q)
-                        debug(track_number_1 = track_number_1, debug = True)
-                        debug(cls_ORGARTIST = cls.ORGARTIST, debug = True)
-                        for tn in track_number_1:
-                            album_id = disco[int(tn) - 1].get('ALB_ID')
-                            download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
+                        track_number_1, _ = cls.split_number(i)
+                        for it in track_number_1:
+                            album_id = disco[int(it) - 1].get('ALB_ID')
                             while 1:
                                 try:
                                     tracks = cls.deezer.get_album_tracks(album_id)
                                     break
                                 except:
                                     pass
+                            download_path = cls.create_download_path(album_id, download_path, cls.IS_SINGLE, ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                             cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
                         
                     else:
                         album_id = disco[int(i) - 1].get('ALB_ID')
-                        download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
                         while 1:
                             try:
                                 tracks = cls.deezer.get_album_tracks(album_id)
                                 break
                             except:
                                 pass
-                        cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
+                        cls.download(tracks, track_number, fformat, download_path, overwrite, dont_overwrite)
 
-            elif "-" in q:
-                track_number = cls.split_number(q)
-                debug(track_number = track_number, debug = True)
-                debug(cls_ORGARTIST = cls.ORGARTIST, debug = True)
-                for tn in track_number:
-                    album_id = disco[int(tn) - 1].get('ALB_ID')
-                    download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
-                    while 1:
-                        try:
-                            tracks = cls.deezer.get_album_tracks(album_id)
-                            break
-                        except:
-                            pass
-                    cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
+            elif "-" in q2:
+                track_number, _ = cls.split_number(q2)
+                debug(track_number = track_number)
+                album_id = disco[int(i) - 1].get('ALB_ID')
+                while 1:
+                    try:
+                        tracks = cls.deezer.get_album_tracks(album_id)
+                        break
+                    except:
+                        pass
+                cls.download(tracks, track_number, fformat, download_path, overwrite, dont_overwrite)
 
             
             notify('Deez', 'Deez', 'finish', 'All Download Finished !', None, None, None, cls.LOGO, True, True, True, None, None, True)
@@ -2136,7 +2005,7 @@ class Deez(object):
         query = cls.print_nav(q)
         debug(query = query)
         query, is_artist, is_album = cls.detect_input(query)
-        #pause(pausex)
+        pause(pausex)
         if is_album and ftype == 'artist':
             return cls.download_interactive(query, download_path0, 'album', fformat, print_list, overwrite, dont_overwrite)
         elif is_artist and ftype == 'album':
@@ -2151,19 +2020,19 @@ class Deez(object):
         debug(query = query)
         debug(is_artist = is_artist)
         debug(is_album = is_album)
-        #pause(pausex)
+        pause(pausex)
         if not str(query).isdigit() and query:
-            #pause(pausex)
+            pause(pausex)
             return cls.download_interactive(query, download_path0, ftype, fformat, True, overwrite, dont_overwrite)
         if disco:
-            #pause(pausex)
+            pause(pausex)
             return cls.download_interactive(cls.QUERY, download_path0, ftype, fformat, True, overwrite, dont_overwrite, disco)        
         else:
-            #pause(pausex)
+            pause(pausex)
             return cls.download_interactive(cls.QUERY, download_path0, ftype, fformat, True, overwrite, dont_overwrite, None, None, q)
 
     @classmethod
-    def usage(cls, debugx = False, pausex = True):
+    def usage(cls, debugx = True, pausex = True):
         parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter)
         parser.add_argument('query', action = 'store', help = 'Search For Artist')
         parser.add_argument('-s', '--search-for', action = 'store', help = 'artist (default) | album', default = 'artist')

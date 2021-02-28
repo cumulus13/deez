@@ -163,6 +163,7 @@ class Deez(object):
 
             try:
                 deezer = Deezer(arl = ARL)
+                print(make_colors("ARL:", 'lw' ,'r') + " " + make_colors(ARL, 'y'))
                 task = make_colors("Connection", 'lw', 'lr', ['blink'])
                 subtask = make_colors("Success", 'b', 'lg', ['blink']) + " "
                 bar.max_value = 1
@@ -172,11 +173,12 @@ class Deez(object):
             except:
                 tp, vl, tr = sys.exc_info()
                 if vl.__class__.__name__ == "ConnectionError":
+                    print(make_colors("ERROR:", 'lw', 'r') + " " + make_colors("ConnectionError", 'y'))
                     if nbar == max_value:
                         nbar = 1
                     bar.update(nbar, task = task, subtask = subtask)
                 else:
-                    traceback.format_exc()
+                    print(make_colors(" Traceback ERROR:", 'lw', 'r') + " " + traceback.format_exc())
                     bar.finish()
                     error = True
                     break
@@ -1443,9 +1445,9 @@ class Deez(object):
         q = cls.set_config(q)
         q, is_artist, is_album = cls.detect_input(q)
         if is_artist:
-            return cls.download_interactive(q, download_path, 'artist', fformat, None, True, overwrite, None, None, True, dont_overwrite)
+            return cls.download_interactive(q, cls.DOWNLOAD_PATH, 'artist', cls.FFORMAT, None, True, cls.OVERWRITE, None, None, True, cls.DONT_OVERWRITE)
         elif is_album:
-            return cls.download_interactive(q, download_path, 'albums', fformat, None, True, overwrite, None, None, True, dont_overwrite)
+            return cls.download_interactive(q, cls.DOWNLOAD_PATH, 'album', cls.FFORMAT, None, True, cls.OVERWRITE, None, None, True, cls.DONT_OVERWRITE)
 
         # disco_f = cls.check_config_artist(ftype, artist_id, disco, album_artist_name)
         disco_f = cls.filter_disco(disco)
@@ -1666,7 +1668,7 @@ class Deez(object):
                     cls.ORGARTIST = disco[int(q_search) - 1]['name']
                 except:
                     pass
-        if str(q_search).isdigit() and ftype == 'albums':
+        if str(q_search).isdigit() and ftype == 'album':
             cls.ORGARTIST = disco[int(q_search) - 1]['artist']['name']
 
         cls.Q_SEARCH = q_search

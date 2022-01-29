@@ -1433,8 +1433,9 @@ class Deez(object):
                 else:
                     album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'm')
                 IS_SINGLE = ""
-                if int(d.get('TYPE')) == 0:
-                    IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
+                if d.get('TYPE'):
+                    if int(d.get('TYPE')) == 0:
+                        IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
                 if d.get('title'):
                     print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
                 else:

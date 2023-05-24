@@ -12,7 +12,7 @@ if __name__ == '__main__':
 else:
     from .tagger2 import Tagger
 import mutagen
-from pause import pause
+#from pause import pause
 if sys.platform == 'win32':
     import win32api, win32con, win32gui, win32console
     from dcmd import dcmd
@@ -270,7 +270,7 @@ class Deez(object):
             return False
 
         result = False
-        debug(query = query, debug = debugx)
+        debug(query = query)
         debug(ftype = ftype)
         if ftype == 'artist':
             while 1:
@@ -1110,10 +1110,10 @@ class Deez(object):
         print_set_config("SHOW_VARIOUS_DISCOGRAPHY")
         print_set_config("DOWNLOAD_ALL")
         print_set_config("DIRECT_DOWNLOAD")
-        debug(q_number = q_number, debug = debugx)
+        debug(q_number = q_number)
         if isinstance(q_number, list) and len(q_number) > 0:
             q_number = q_number[0]
-        debug(q_number = q_number, debug = debugx)
+        debug(q_number = q_number)
         return q_number
             
     @classmethod
@@ -1462,9 +1462,9 @@ class Deez(object):
             artist_name = cls.ORGARTIST
         disco_filter = []
         for ds in disco:
-            debug(ds_key = ds.keys(), debug = True)
-            debug(ds_ARTIST = ds.get('ART_NAME'), debug = True)
-            debug(artist_name = artist_name, debug = True)
+            debug(ds_key = ds.keys())
+            debug(ds_ARTIST = ds.get('ART_NAME'))
+            debug(artist_name = artist_name)
             if artist_name:
                 if single or cls.SHOW_SINGLE_DISCOGRAPHY_ARTIST_ONLY:
                     if ds.get('TYPE') == '0' or ds.get('type') == '0' or ds.get('TYPE') == 0 or ds.get('type') == 0:
@@ -1678,9 +1678,9 @@ class Deez(object):
         :rtype: list, dictionary view object and string
         """
         
-        debug(query = query, debug = debugx)
-        debug(q = q_search, debug = debugx)
-        debug(print_list = print_list, debug = debugx)
+        debug(query = query)
+        debug(q = q_search)
+        debug(print_list = print_list)
         debug(orgartist = orgartist)
         debug(pausex = pausex)
         
@@ -1882,16 +1882,16 @@ class Deez(object):
         
         if not disco:
             disco, _ = cls.search(query, ftype, print_list, q, debugx = False, pausex = False)
-            debug(cls_ORGARTIST = cls.ORGARTIST, debug = debugx)
+            debug(cls_ORGARTIST = cls.ORGARTIST)
         if not disco:
             print(make_colors("No Discography Found !", 'lw', 'lr'))
             sys.exit(0)
         #pause(pausex)
         disco_f = cls.filter_disco(disco)
-        debug(cls_ORGARTIST = cls.ORGARTIST, debug = debugx)
+        debug(cls_ORGARTIST = cls.ORGARTIST)
         #pause(pausex)
-        debug(len_disco = len(disco), debug = True)
-        debug(len_disco_f = len(disco_f), debug = True)
+        debug(len_disco = len(disco))
+        debug(len_disco_f = len(disco_f))
         
         if disco:
             disco, q = cls.print_disco_album(disco, ftype, print_list)
@@ -1906,15 +1906,15 @@ class Deez(object):
             if len(disco) == len(disco_f):
                 break
             else:
-                debug(len_disco = len(disco), debug = True)
-                debug(len_disco_f = len(disco_f), debug = True)
+                debug(len_disco = len(disco))
+                debug(len_disco_f = len(disco_f))
                 disco, q = cls.print_disco_album(disco_f, ftype, print_list)
                 disco_f = cls.filter_disco(disco)
-                debug(len_disco = len(disco), debug = True)
-                debug(len_disco_f = len(disco_f), debug = True)
+                debug(len_disco = len(disco))
+                debug(len_disco_f = len(disco_f))
 
         debug(len_disco = len(disco))
-        debug(q = q, debug = True)
+        debug(q = q)
         debug(cls_DOWNLOAD_SINGLE_ORIGINAL_ONLY = cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY)
         debug(cls_DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY = cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY)
         #pause(pausex)
@@ -2089,8 +2089,8 @@ class Deez(object):
                 for i in track_number:
                     if "-" in i:
                         track_number_1 = cls.split_number(q)
-                        debug(track_number_1 = track_number_1, debug = True)
-                        debug(cls_ORGARTIST = cls.ORGARTIST, debug = True)
+                        debug(track_number_1 = track_number_1)
+                        debug(cls_ORGARTIST = cls.ORGARTIST)
                         for tn in track_number_1:
                             album_id = disco[int(tn) - 1].get('ALB_ID')
                             download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
@@ -2115,8 +2115,8 @@ class Deez(object):
 
             elif "-" in q:
                 track_number = cls.split_number(q)
-                debug(track_number = track_number, debug = True)
-                debug(cls_ORGARTIST = cls.ORGARTIST, debug = True)
+                debug(track_number = track_number)
+                debug(cls_ORGARTIST = cls.ORGARTIST)
                 for tn in track_number:
                     album_id = disco[int(tn) - 1].get('ALB_ID')
                     download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)

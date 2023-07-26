@@ -1,4 +1,4 @@
-#!d:/virtualenv/py-deezer/Scripts/python.exe
+#!c:\projects\deez-env\Scripts\python.exe
 
 from __future__ import print_function
 

@@ -1,4 +1,4 @@
-#!c:\projects\deez-env\Scripts\python.exe
+#!c:/VENV/deez/Scripts/python.exe
 
 from __future__ import print_function
 
@@ -12,7 +12,7 @@ if __name__ == '__main__':
 else:
     from .tagger2 import Tagger
 import mutagen
-#from pause import pause
+from pause import pause
 if sys.platform == 'win32':
     import win32api, win32con, win32gui, win32console
     from dcmd import dcmd
@@ -270,7 +270,7 @@ class Deez(object):
             return False
 
         result = False
-        debug(query = query)
+        debug(query = query, debug = debugx)
         debug(ftype = ftype)
         if ftype == 'artist':
             while 1:
@@ -1110,10 +1110,10 @@ class Deez(object):
         print_set_config("SHOW_VARIOUS_DISCOGRAPHY")
         print_set_config("DOWNLOAD_ALL")
         print_set_config("DIRECT_DOWNLOAD")
-        debug(q_number = q_number)
+        debug(q_number = q_number, debug = debugx)
         if isinstance(q_number, list) and len(q_number) > 0:
             q_number = q_number[0]
-        debug(q_number = q_number)
+        debug(q_number = q_number, debug = debugx)
         return q_number
             
     @classmethod
@@ -1566,35 +1566,20 @@ class Deez(object):
                 if not album_artist_name and cls.FTYPE == 'artist':
                     album_artist_name = d.get('ART_NAME')
                 debug(album_artist_name_lower = album_artist_name.lower())
-                #debug(cls_ORGARTIST_lower = cls.ORGARTIST.lower())
-                debug(cls_FTYPE = cls.FTYPE)
-                if cls.ORGARTIST and cls.FTYPE == 'artist':
-                    if album_artist_name.lower() == cls.ORGARTIST.lower():
-                        album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'r')
-                    else:
-                        album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'm')
-                    debug(TYPE = d.get('type'))
-                    IS_SINGLE = ""
-                    if int(d.get('TYPE')) == 0:
-                        IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
-                    if d.get('title'):
-                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
-                    else:
-                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
-                    n += 1
-                elif not cls.ORGARTIST and cls.FTYPE == 'album':
-                    album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'm')
-                    debug(TYPE = d.get('type'))
-                    IS_SINGLE = ""
-                    if d.get('TYPE') and int(d.get('TYPE')) == 0:
-                        IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
-                    if d.get('title'):
-                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
-                    else:
-                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
-                    n += 1
+                debug(cls_ORGARTIST_lower = cls.ORGARTIST.lower())
+                if album_artist_name.lower() == cls.ORGARTIST.lower():
+                    album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'r')
                 else:
-                    print(make_colors("No Artist !", 'lw', 'r'))
+                    album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'm')
+                debug(TYPE = d.get('type'))
+                IS_SINGLE = ""
+                if int(d.get('TYPE')) == 0:
+                    IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
+                if d.get('title'):
+                    print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                else:
+                    print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                n += 1
             notify('Deez', 'Deez', 'select_album', 'Ready to Select Album !', None, None, None, cls.LOGO, True, True, True, None, None, True)
         q = cls.print_nav(None)
         q = cls.set_config(q)
@@ -1693,9 +1678,9 @@ class Deez(object):
         :rtype: list, dictionary view object and string
         """
         
-        debug(query = query)
-        debug(q = q_search)
-        debug(print_list = print_list)
+        debug(query = query, debug = debugx)
+        debug(q = q_search, debug = debugx)
+        debug(print_list = print_list, debug = debugx)
         debug(orgartist = orgartist)
         debug(pausex = pausex)
         
@@ -1897,13 +1882,13 @@ class Deez(object):
         
         if not disco:
             disco, _ = cls.search(query, ftype, print_list, q, debugx = False, pausex = False)
-            debug(cls_ORGARTIST = cls.ORGARTIST)
+            debug(cls_ORGARTIST = cls.ORGARTIST, debug = debugx)
         if not disco:
             print(make_colors("No Discography Found !", 'lw', 'lr'))
             sys.exit(0)
         #pause(pausex)
         disco_f = cls.filter_disco(disco)
-        debug(cls_ORGARTIST = cls.ORGARTIST)
+        debug(cls_ORGARTIST = cls.ORGARTIST, debug = debugx)
         #pause(pausex)
         debug(len_disco = len(disco))
         debug(len_disco_f = len(disco_f))

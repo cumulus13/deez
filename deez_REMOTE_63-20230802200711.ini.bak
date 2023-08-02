@@ -1,0 +1,17 @@
+[download]
+sleep = 
+path = c:\\MUSICS
+
+[AUTH]
+arl = e56dc1d9a2c5cafe70dc1ae53f2cfb4b50ec19954717f85e6e8c637f8cb8b81b27a417280343e05913aaf053fc07861e2aac768b7c7f0a8fc5ab7ddeaf1a76da71c810232f5b3186e41d0a60860061e3250a4acb41a892a9717559a13c637983
+
+[service]
+growl = 1
+nmd = 
+
+[nmd]
+api = 
+
+[pushbullet]
+api = 
+

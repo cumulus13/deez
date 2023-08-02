@@ -15,7 +15,12 @@ import requests
 from bs4 import BeautifulSoup as bs
 import re
 from pprint import pprint
-from pause import pause
+
+try:
+	from pause import pause
+except:
+	def pause(*args, **kwargs):
+		return None
 
 class Tagger(object):
 	CONFIG = configset()

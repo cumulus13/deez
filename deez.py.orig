@@ -1,4 +1,8 @@
+<<<<<<< HEAD
+#!c:/VENV/deez/Scripts/python.exe
+=======
 #!c:\projects\deez-env\Scripts\python.exe
+>>>>>>> d924de3fd1f698cd4bc91c0c35c4d725103ef539
 
 from __future__ import print_function
 

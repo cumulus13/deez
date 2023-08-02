@@ -1,4 +1,4 @@
-#!d:/virtualenv/py-deezer/Scripts/python.exe
+#!c:/VENV/deez/Scripts/python.exe
 
 from __future__ import print_function
 
@@ -1462,9 +1462,9 @@ class Deez(object):
             artist_name = cls.ORGARTIST
         disco_filter = []
         for ds in disco:
-            debug(ds_key = ds.keys(), debug = True)
-            debug(ds_ARTIST = ds.get('ART_NAME'), debug = True)
-            debug(artist_name = artist_name, debug = True)
+            debug(ds_key = ds.keys())
+            debug(ds_ARTIST = ds.get('ART_NAME'))
+            debug(artist_name = artist_name)
             if artist_name:
                 if single or cls.SHOW_SINGLE_DISCOGRAPHY_ARTIST_ONLY:
                     if ds.get('TYPE') == '0' or ds.get('type') == '0' or ds.get('TYPE') == 0 or ds.get('type') == 0:
@@ -1890,8 +1890,8 @@ class Deez(object):
         disco_f = cls.filter_disco(disco)
         debug(cls_ORGARTIST = cls.ORGARTIST, debug = debugx)
         #pause(pausex)
-        debug(len_disco = len(disco), debug = True)
-        debug(len_disco_f = len(disco_f), debug = True)
+        debug(len_disco = len(disco))
+        debug(len_disco_f = len(disco_f))
         
         if disco:
             disco, q = cls.print_disco_album(disco, ftype, print_list)
@@ -1906,15 +1906,15 @@ class Deez(object):
             if len(disco) == len(disco_f):
                 break
             else:
-                debug(len_disco = len(disco), debug = True)
-                debug(len_disco_f = len(disco_f), debug = True)
+                debug(len_disco = len(disco))
+                debug(len_disco_f = len(disco_f))
                 disco, q = cls.print_disco_album(disco_f, ftype, print_list)
                 disco_f = cls.filter_disco(disco)
-                debug(len_disco = len(disco), debug = True)
-                debug(len_disco_f = len(disco_f), debug = True)
+                debug(len_disco = len(disco))
+                debug(len_disco_f = len(disco_f))
 
         debug(len_disco = len(disco))
-        debug(q = q, debug = True)
+        debug(q = q)
         debug(cls_DOWNLOAD_SINGLE_ORIGINAL_ONLY = cls.DOWNLOAD_SINGLE_ORIGINAL_ONLY)
         debug(cls_DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY = cls.DOWNLOAD_SINGLE_DISCOGRAPHY_ONLY)
         #pause(pausex)
@@ -2089,8 +2089,8 @@ class Deez(object):
                 for i in track_number:
                     if "-" in i:
                         track_number_1 = cls.split_number(q)
-                        debug(track_number_1 = track_number_1, debug = True)
-                        debug(cls_ORGARTIST = cls.ORGARTIST, debug = True)
+                        debug(track_number_1 = track_number_1)
+                        debug(cls_ORGARTIST = cls.ORGARTIST)
                         for tn in track_number_1:
                             album_id = disco[int(tn) - 1].get('ALB_ID')
                             download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
@@ -2115,8 +2115,8 @@ class Deez(object):
 
             elif "-" in q:
                 track_number = cls.split_number(q)
-                debug(track_number = track_number, debug = True)
-                debug(cls_ORGARTIST = cls.ORGARTIST, debug = True)
+                debug(track_number = track_number)
+                debug(cls_ORGARTIST = cls.ORGARTIST)
                 for tn in track_number:
                     album_id = disco[int(tn) - 1].get('ALB_ID')
                     download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)

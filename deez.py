@@ -1566,20 +1566,35 @@ class Deez(object):
                 if not album_artist_name and cls.FTYPE == 'artist':
                     album_artist_name = d.get('ART_NAME')
                 debug(album_artist_name_lower = album_artist_name.lower())
-                debug(cls_ORGARTIST_lower = cls.ORGARTIST.lower())
-                if album_artist_name.lower() == cls.ORGARTIST.lower():
-                    album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'r')
-                else:
+                #debug(cls_ORGARTIST_lower = cls.ORGARTIST.lower())
+                debug(cls_FTYPE = cls.FTYPE)
+                if cls.ORGARTIST and cls.FTYPE == 'artist':
+                    if album_artist_name.lower() == cls.ORGARTIST.lower():
+                        album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'r')
+                    else:
+                        album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'm')
+                    debug(TYPE = d.get('type'))
+                    IS_SINGLE = ""
+                    if int(d.get('TYPE')) == 0:
+                        IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
+                    if d.get('title'):
+                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                    else:
+                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                    n += 1
+                elif not cls.ORGARTIST and cls.FTYPE == 'album':
                     album_artist_name = make_colors("{0} album".format(album_artist_name), 'lw', 'm')
-                debug(TYPE = d.get('type'))
-                IS_SINGLE = ""
-                if int(d.get('TYPE')) == 0:
-                    IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
-                if d.get('title'):
-                    print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                    debug(TYPE = d.get('type'))
+                    IS_SINGLE = ""
+                    if d.get('TYPE') and int(d.get('TYPE')) == 0:
+                        IS_SINGLE = " " + make_colors("[SINGLE]", 'b', 'lg')
+                    if d.get('title'):
+                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('title'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                    else:
+                        print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
+                    n += 1
                 else:
-                    print(cls.format_number(n, len(disco)) +  ". " + make_colors(d.get('ALB_TITLE'), 'lw', 'bl') + " / " + album_artist_name + IS_SINGLE + " [" + make_colors(d.get('DIGITAL_RELEASE_DATE'), 'lr', 'lw') + "]")
-                n += 1
+                    print(make_colors("No Artist !", 'lw', 'r'))
             notify('Deez', 'Deez', 'select_album', 'Ready to Select Album !', None, None, None, cls.LOGO, True, True, True, None, None, True)
         q = cls.print_nav(None)
         q = cls.set_config(q)

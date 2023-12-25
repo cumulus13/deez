@@ -12,7 +12,7 @@ configparser==5.3.0
 configset==1.42
 cryptography==40.0.1
 dcmd==0.13
-gntplib @ file:///C:/projects/gntplib
+git+https://github.com/cumulus13/gntplib
 idna==3.4
 make-colors==3.32
 markdown-it-py==2.2.0

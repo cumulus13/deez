@@ -1208,9 +1208,9 @@ class Deez(object):
                 (str) download_path
         '''
 
-        debug(download_path = download_path)
-        debug(original_artist = original_artist)
-        debug(single_on_artist_folder = single_on_artist_folder)
+        debug(download_path = download_path, debug = 1)
+        debug(original_artist = original_artist, debug = 1)
+        debug(single_on_artist_folder = single_on_artist_folder, debug = 1)
 
         if original_artist and single_on_artist_folder:
             download_path = os.path.join(download_path, original_artist)
@@ -1234,16 +1234,27 @@ class Deez(object):
             release_date = album_detail.get('release_date')
             release = datetime.strptime(release_date, '%Y-%m-%d')
             release_year = release.year
+            
+            debug(artist_data = artist_data, debug = 1)
+            debug(artist = artist, debug = 1)
+            debug(release_date = release_date, debug = 1)
+            debug(release = release, debug = 1)
+            debug(release_year = release.year, debug = 1)
         
             if not os.path.isdir(os.path.join(download_path, artist)):
                 os.makedirs(os.path.join(download_path, artist))
             download_path = os.path.join(download_path, artist)
+            debug(download_path = download_path, debug = 1)
             if is_single or cls.IS_SINGLE:
                 download_path = os.path.join(download_path, "SINGLES")
+                debug(download_path = download_path, debug = 1)
             # folder_name = artist + " - " + album_detail.get('title') + " (" + str(release_year) + ")"
-            folder_name = "(" + str(release_date) + ") " + album_detail.get('title')
+            folder_name = "(" + str(release_date) + ") " + re.sub('"|\'', '', album_detail.get('title'))
+            debug(folder_name = folder_name, debug = 1)
             folder_name = cls.normalization_folder(folder_name)
+            debug(folder_name = folder_name, debug = 1)
             download_path = os.path.join(download_path, folder_name)
+            debug(download_path = download_path, debug = 1)
 
             if is_single and not cls.IS_SINGLE:
                 download_path += " [single]"
@@ -1261,7 +1272,7 @@ class Deez(object):
             except:
                 pass
         
-        debug(download_path = download_path)
+        debug(download_path = download_path, debug = 1)
         return download_path
 
     @classmethod
@@ -1295,12 +1306,14 @@ class Deez(object):
                 while 1:
                     try:
                         album_detail = cls.deezer.get_album(id)
+                        debug(album_detail = album_detail, debug = 1)
                         break
                     except:
                         pass
             while 1:
                 try:
                     cover_data = cls.deezer.get_album_poster(album_detail, 1200)
+                    debug(cover_data = cover_data, debug = 1)
                     break
                 except:
                     pass
@@ -1308,13 +1321,16 @@ class Deez(object):
             while 1:
                 try:
                     album_detail = cls.deezer.get_album(id)
+                    debug(album_detail = album_detail, debug = 1)
                     break
                 except:
                     pass
         artist_data = album_detail.get('artist')
+        debug(artist_data = artist_data, debug = 1)
         while 1:
             try:
                 artist_picture_data = cls.deezer.get_artist_poster(cls.deezer.get_artist(artist_data.get('id')), 1000)
+                debug(artist_picture_data = artist_picture_data)
                 break
             except:
                 pass
@@ -1322,15 +1338,23 @@ class Deez(object):
             if filename:
                 if filename.lower().endswith('.mp3') or filename.lower().endswith('.flac'):
                     filename = re.sub("\.mp3|\.flac", "", filename, re.I)
-                cover = filename + "." + cover_data.get('ext')    
+                    debug(filename = filename, debug = 1)
+                cover = filename + "." + cover_data.get('ext')
+                debug(cover = cover, debug = 1)
             else:
                 cover = cover_name + "." + cover_data.get('ext')
+                debug(cover = cover, debug = 1)
                 poster = poster_name + "." + cover_data.get('ext')
+                debug(poster = poster, debug = 1)
                 artist_pic = "Artist" + "." + artist_picture_data.get('ext')
+                debug(artist_pic = artist_pic, debug = 1)
                 
                 cover = os.path.join(download_path, cover)
+                debug(cover = cover, debug = 1)
                 poster = os.path.join(download_path, poster)
+                debug(poster = poster, debug = 1)
                 artist_pic = os.path.join(download_path, artist_pic)
+                debug(artist_pic = artist_pic, debug = 1)
 
                 with open(u"{}".format(poster), 'wb') as poster_file:
                     poster_file.write(cover_data.get('image'))
@@ -1892,6 +1916,7 @@ class Deez(object):
             download_path = os.getcwd()
 
         download_path0 = download_path
+        debug(download_path0 = download_path0, debug = 1)
         
         result = None
         
@@ -2119,7 +2144,9 @@ class Deez(object):
                         
                     else:
                         album_id = disco[int(i) - 1].get('ALB_ID')
+                        debug(download_path0 = download_path0, debug = 1)
                         download_path = cls.create_download_path(album_id, download_path0, cls.IS_SINGLE, cls.ORGARTIST, cls.DOWNLOAD_INTO_ARTIST_FOLDER, cls.DOWNLOAD_INTO_SINGLE_FOLDER)
+                        debug(download_path = download_path, debug = 1)
                         while 1:
                             try:
                                 tracks = cls.deezer.get_album_tracks(album_id)

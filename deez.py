@@ -1,4 +1,4 @@
-#!c:\projects\deez-env\Scripts\python.exe
+#!c:\projects\deez\Scripts\python.exe
 
 from __future__ import print_function
 
@@ -162,7 +162,6 @@ class Deez(object):
     if ARL:
         debug(ARL = ARL)
         while 1:
-
             try:
                 deezer = Deezer(arl = ARL)
                 task = make_colors("Connection", 'lw', 'lr', ['blink'])
@@ -1619,7 +1618,7 @@ class Deez(object):
                     n += 1
                 else:
                     print(make_colors("No Artist !", 'lw', 'r'))
-            notify('Deez', 'Deez', 'select_album', 'Ready to Select Album !', None, None, None, cls.LOGO, True, True, True, None, None, True)
+            notify.send('Deez', 'ready', 'select_album', 'Ready to Select Album !', ['ready', 'download'], icon = cls.LOGO)
         q = cls.print_nav(None)
         q = cls.set_config(q)
         debug(q = q)
@@ -1688,7 +1687,7 @@ class Deez(object):
         else:
             return cls.download_interactive(cls.QUERY, cls.DOWNLOAD_PATH, cls.FTYPE, cls.FFORMAT, True, cls.OVERWRITE, cls.DONT_OVERWRITE)
 
-        notify('Deez', 'Deez', 'ready to download album', 'Ready to Download Album !', None, None, None, cls.LOGO, True, True, True, None, None, True)
+        notify.send('Deez', 'ready', 'select_album', 'Ready to Download Album !', ['ready', 'download'], icon = cls.LOGO)
         return tracks, q
 
     @classmethod
@@ -2053,7 +2052,7 @@ class Deez(object):
                     else:
                         pass
                     
-                    notify('Deez', 'Deez', 'finish', 'All Download Finished !', None, None, None, cls.LOGO, True, True, True, None, None, True)
+                    notify.send('Deez', 'download', 'finish', 'All Download Finished !', ['ready', 'download'], icon = cls.LOGO)
 
                 elif q and not q.isdigit():
                     return cls.download_interactive(q, cls.DOWNLOAD_PATH, 'artist', cls.FFORMAT, print_list, cls.OVERWRITE, cls.DONT_OVERWRITE)
@@ -2171,7 +2170,7 @@ class Deez(object):
                     cls.download(tracks, None, fformat, download_path, overwrite, dont_overwrite)
 
             
-            notify('Deez', 'Deez', 'finish', 'All Download Finished !', None, None, None, cls.LOGO, True, True, True, None, None, True)
+            notify.send('Deez', 'download', 'finish', 'All Download Finished !', ['ready', 'download'], icon = cls.LOGO)
 
         # else:
         debug(q = q)
@@ -2207,7 +2206,7 @@ class Deez(object):
     @classmethod
     def usage(cls, debugx = False, pausex = True):
         parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter)
-        parser.add_argument('query', action = 'store', help = 'Search For Artist')
+        parser.add_argument('query', action = 'store', help = 'Search For Artist', nargs = '*')
         parser.add_argument('-s', '--search-for', action = 'store', help = 'artist (default) | album', default = 'artist')
         parser.add_argument('-p', '--download-path', action = 'store', help = 'Save download to')
         parser.add_argument('-t', '--type', action = 'store', help = 'mp3 or flac, default = mp3', default = 'mp3')
@@ -2225,7 +2224,7 @@ class Deez(object):
                 download_path = cls.config.get_config('download', 'path')
             if args.download_path:
                 download_path = args.download_path
-            cls.download_interactive(args.query, download_path, args.search_for, args.type, overwrite = args.overwrite, dont_overwrite = args.dont_overwrite)
+            cls.download_interactive(" ".join(args.query), download_path, args.search_for, args.type, overwrite = args.overwrite, dont_overwrite = args.dont_overwrite)
             
 def usage():
     Deez.usage()
